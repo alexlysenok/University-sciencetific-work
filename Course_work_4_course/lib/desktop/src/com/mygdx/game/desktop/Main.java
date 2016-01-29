@@ -1,0 +1,20 @@
+package com.mygdx.game.desktop;
+
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.mygdx.game.TestGame;
+
+public class Main {
+	public static void main(String[] args) {
+		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
+		cfg.title = "Multiagent System";
+		cfg.useGL30 = false;
+		cfg.width = 1800;
+		cfg.height = 900;
+		
+		
+		new LwjglApplication(new TestGame(), cfg);
+		
+	}
+
+}

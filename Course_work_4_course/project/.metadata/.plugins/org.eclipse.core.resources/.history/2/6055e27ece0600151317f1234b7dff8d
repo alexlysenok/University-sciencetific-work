@@ -1,0 +1,50 @@
+package com.mygdx.game;
+
+
+import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+
+public class Flag implements Comparable<Flag> {
+	private float x;     // координата x на карте
+	private float y;     // координата y на карте
+	Image flag=new Image(new Texture(Gdx.files.internal("flag.png")));
+	
+	
+	
+	public Flag(float x, float y, Stage stage){
+		this.y=y;
+		this.x=x;
+		flag.setScale(0.5f);  // устанавливает размер флага
+		setPosition(x, y);
+		stage.addActor(flag);
+	}
+
+	public float getX() {
+		return x;
+	}
+
+	
+
+	public float getY() {
+		return y;
+	}
+
+    public void setPosition(float x,float y){
+    	flag.setPosition(x, y);
+    }
+
+	@Override
+	public int compare(Flag flag1, Flag flag2) {
+		// TODO Auto-generated method stub
+		return (int) (Math.sqrt(Math.pow(flag1.getX(), 2)+Math.pow(flag1.getY(), 2))- Math.sqrt(Math.pow(flag2.getX(), 2)+Math.pow(flag2.getX(), 2)));
+	}
+
+	
+}

@@ -1,0 +1,222 @@
+package com.mygdx.game;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+import javax.swing.JOptionPane;
+import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.ai.msg.MessageManager;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+
+public class TestGame implements ApplicationListener {
+
+	private SpriteBatch batch;
+	private SpriteBatch batch2;
+	private Texture background;
+	private Random rnd = new Random();
+	private Stage stage;
+	public static List<NewNode> nodesList = new ArrayList<NewNode>();
+	public static List<Flag> flags = new ArrayList<Flag>();	
+	public static List<Flag> freeFlags = new ArrayList<Flag>();
+	private BitmapFont font;
+	public static boolean startMoving = false;
+	int counterNum = 0;
+	public static Counter[] counter;
+	// static int nodesNumber =
+	// Integer.parseInt(JOptionPane.showInputDialog("Введите кол-во узлов:"));
+	int nodesNumber = 4;
+	
+	
+
+
+	public void create() {
+		int y = 850;
+		int x = 20;
+		batch = new SpriteBatch();
+		batch2 = new SpriteBatch();
+		
+		
+		
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("stormfaze.ttf"));	 // настраиваем текстуру для таймера
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();     
+        int fontSize = (int)(24);
+        parameter.size = fontSize;
+        font = generator.generateFont(parameter);
+        generator.dispose();
+		font.setColor(Color.YELLOW);
+		
+		
+	
+		background = new Texture(Gdx.files.internal("mars.png")); // инициализируем
+
+		// фон
+		Background back = new Background(background);
+		stage = new Stage(); // инициализируем сцену
+		Gdx.input.setInputProcessor(stage);
+
+		stage.addActor(back); // добавляем на сцену фон
+
+		flags.add(new Flag(500, 750, stage)); // добавляем на сцену флажки
+		flags.add(new Flag(850, 600, stage));
+		flags.add(new Flag(1200, 450, stage));
+		flags.add(new Flag(1600, 150, stage));
+		flags.add(new Flag(600, 100, stage));
+		flags.add(new Flag(700, 300, stage));
+		flags.add(new Flag(1400, 500, stage));
+		flags.add(new Flag(1700, 650, stage));
+		
+		Collections.sort(flags);
+
+		
+	for(Flag flag: flags)	{
+		
+		freeFlags.add(flag);
+		
+	}
+		
+		
+		for (int i = 0; i < nodesNumber; i++) { // добавляем на сцену узлы
+
+			x += 10;
+
+			if (x >= 130) {
+				y -= 10;
+				x -= 100;
+
+			}
+
+			nodesList.add(new Node3(x, y, i));
+			stage.addActor(nodesList.get(i));
+
+		}
+
+	     counter=new Counter[TestGame.flags.size()];  // массив таймеров
+		
+		for(int i=0;i<counter.length;i++){
+			counter[i]=new Counter();
+		}
+	
+		for(int i=0,j=30; i<counter.length;i++){     // заполняем таймеры
+			
+			counter[i].time=j+5*i;
+			counter[i].timerX=TestGame.flags.get(i).getX()+5;
+			counter[i].timerY=TestGame.flags.get(i).getY()+5;
+		}
+		
+		
+		
+		
+		
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+
+				Gdx.app.postRunnable(new Runnable() {
+					@Override
+					public void run() {
+					
+						nodesList.get(0).startAuction();     // запускаем первый аукцион
+						
+					}
+				});
+
+			}
+		}, 5000);
+
+	}
+
+	/*
+	public void resort() {
+
+		for (int j = 0; j < flags.size(); j++) {
+			float mindist = Float.MAX_VALUE;
+			int minindex = 0;
+			for (int i = j; i < nodesList.size(); i++) {
+				NewNode node = nodesList.get(i);
+
+				float dist = (float) Math.hypot(
+						Math.abs(flags.get(j).getX() - node.myXx),
+						Math.abs(flags.get(j).getY() - node.myYy));
+				if (dist < mindist) {
+					mindist = dist;
+					minindex = nodesList.indexOf(node);
+
+				}
+			}
+			Collections.swap(nodesList, j, minindex);
+		}
+	}
+	
+	*/
+	
+
+	@Override
+	public void render() {
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClearColor(0, 0, 0, 1);
+		NewNode.dispatcher.update(Gdx.graphics.getDeltaTime());
+		batch.begin();
+		stage.act(Gdx.graphics.getDeltaTime());
+		stage.draw();
+
+		batch.end();
+		if (startMoving) {
+			batch2.begin();
+
+			for(int i=0; i<counter.length; i++){
+				
+				
+			 font.draw(batch2, String.valueOf((int) (counter[i].minusTime(Gdx.graphics.getDeltaTime()))), counter[i].timerX-5f, counter[i].timerY-5f);
+	        
+			   
+			}
+	
+			batch2.end();
+		}
+
+	}
+
+	@Override
+	public void resize(int width, int height) {
+		// stage.setViewport(1024, 720, true);
+		
+	}
+
+	@Override
+	public void pause() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void resume() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void dispose() {
+		// TODO Auto-generated method stub
+		font.dispose();
+	}
+
+}
